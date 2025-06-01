@@ -5,9 +5,10 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from joblib import load
 import webbrowser
 import threading
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
 
 app = Flask(__name__)
-
 # 定義模型架構
 class MLP(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim):
@@ -45,10 +46,13 @@ emotion_labels = {
     5: ("Sadness", "😢"),
     6: ("Surprise", "😲")
 }
+stop_words = set(stopwords.words("english"))
 
 def preprocess_text(text):
     text = text.lower()
-    tokens = [t for t in text.split() if t.isalpha()]
+    tokens = word_tokenize(text)
+    tokens = [t for t in tokens if t.isalpha()]  # 移除標點、數字
+    tokens = [t for t in tokens if t not in stop_words]
     return " ".join(tokens)
 
 @app.route("/", methods=["GET", "POST"])
